@@ -1,7 +1,7 @@
 ---
 title: Bachelor Thesis - MCP Security in Fintech
 status: active
-topic: Security
+topic: research
 startDate: 2025-11-12
 tagline_human: Securing AI assistants in the financial sector by automatically detecting vulnerabilities in how they connect to external tools.
 tagline_tech: Automated vulnerability detection for MCP-based LLM agents in Fintech environments, focusing on context-injection and integration exploits.

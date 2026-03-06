@@ -1,7 +1,7 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowUpRight, CircleDot, GitBranch, GitMerge } from 'lucide-react';
 import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
-import { $mode, ensureModeSync, type Mode } from '../stores/mode';
+import { $mode, ensureModeSync } from '../stores/mode';
 
 interface Project {
     id: string;
@@ -269,16 +269,27 @@ export default function GitProjectMap({ projects }: Props) {
                                         {' → '}
                                         {activeProject.data.endDate ? activeProject.data.endDate.toISOString().split('T')[0] : 'PRESENT'}
                                     </span>
-                                    {/* De link is nu veilig klikbaar! */}
-                                    <a href={activeProject.data.url} target="_blank" rel="noreferrer" className="mt-4 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[#38BDF8] hover:text-white transition-colors">
-                                        View Repository <ArrowUpRight size={14} />
+                                <div className="mt-5 flex items-center gap-4">
+                                    <a 
+                                    href={`/projects/${activeProject.slug}`} 
+                                    className="inline-flex items-center gap-2 rounded bg-[#38BDF8]/10 border border-[#38BDF8]/30 px-3 py-2 text-xs font-bold uppercase tracking-widest text-[#38BDF8] hover:bg-[#38BDF8] hover:text-[#05050A] transition-all shadow-[0_0_10px_rgba(56,189,248,0.1)] hover:shadow-[0_0_15px_rgba(56,189,248,0.4)]"
+                                    >
+                                    {mode === 'tech' ? 'Open Runtime Spec' : 'Read Case Study'}
                                     </a>
+                                    <a 
+                                    href={activeProject.data.url} 
+                                    target="_blank" 
+                                    rel="noreferrer" 
+                                    className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-slate-500 hover:text-white transition-colors"
+                                    >
+                                    GitHub <ArrowUpRight size={14} />
+                                    </a>
+                                </div>
                                 </div>
                             </motion.div>
                         ) : (
                             <div className="h-full flex items-center justify-center text-slate-500 text-sm tracking-widest uppercase">
-                                {/* Tekst geüpdatet voor duidelijkheid */}
-                                Select a project to view data
+                                {mode === 'tech' ? 'Select a branch to inspect payload' : 'Select a project to view details'}
                             </div>
                         )}
                     </AnimatePresence>

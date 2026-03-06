@@ -25,7 +25,6 @@ interface Props {
 const center = { x: 500, y: 320 };
 const TRACE_BASE = 'rgba(255, 255, 255, 0.15)';
 const ICE_BLUE = '#38BDF8';
-const SOFT_PURPLE = '#8B5CF6';
 
 const nodePositions: Record<NodeId, { x: number; y: number }> = {
   root: { x: 500, y: 130 },

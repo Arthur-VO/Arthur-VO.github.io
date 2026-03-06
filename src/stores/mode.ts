@@ -7,13 +7,23 @@ const DEFAULT_MODE: Mode = 'human';
 
 let hasModeSync = false;
 
-export const $mode = atom<Mode>(DEFAULT_MODE);
+const isMode = (value: string | null): value is Mode => value === 'human' || value === 'tech';
+
+const getInitialMode = (): Mode => {
+  if (typeof window !== 'undefined') {
+    try {
+      const saved = window.localStorage.getItem(STORAGE_KEY);
+      if (isMode(saved)) return saved;
+    } catch {}
+  }
+  return DEFAULT_MODE;
+};
+
+export const $mode = atom<Mode>(getInitialMode());
 
 export const toggleMode = () => {
   $mode.set($mode.get() === 'human' ? 'tech' : 'human');
 };
-
-const isMode = (value: string | null): value is Mode => value === 'human' || value === 'tech';
 
 const applyModeToDocument = (mode: Mode) => {
   if (typeof document === 'undefined') {
@@ -23,12 +33,28 @@ const applyModeToDocument = (mode: Mode) => {
   document.documentElement.dataset.mode = mode;
 };
 
-export const ensureModeSync = () => {
-  if (hasModeSync || typeof window === 'undefined') {
+export const syncModeFromStorage = () => {
+  if (typeof window === 'undefined') {
     return;
   }
 
-  hasModeSync = true;
+  try {
+    const savedMode = window.localStorage.getItem(STORAGE_KEY);
+    if (isMode(savedMode)) {
+      $mode.set(savedMode);
+      applyModeToDocument(savedMode);
+    } else {
+      applyModeToDocument(DEFAULT_MODE);
+    }
+  } catch {
+    applyModeToDocument(DEFAULT_MODE);
+  }
+};
+
+export const ensureModeSync = () => {
+  if (typeof window === 'undefined') {
+    return;
+  }
 
   try {
     const savedMode = window.localStorage.getItem(STORAGE_KEY);
@@ -42,11 +68,14 @@ export const ensureModeSync = () => {
 
   applyModeToDocument($mode.get());
 
-  $mode.listen((mode) => {
-    applyModeToDocument(mode);
+  if (!hasModeSync) {
+    hasModeSync = true;
+    $mode.listen((mode) => {
+      applyModeToDocument(mode);
 
-    try {
-      window.localStorage.setItem(STORAGE_KEY, mode);
-    } catch {}
-  });
+      try {
+        window.localStorage.setItem(STORAGE_KEY, mode);
+      } catch {}
+    });
+  }
 };

@@ -1,10 +1,10 @@
 ---
-import { ViewTransitions } from "astro:transitions";
+import { ClientRouter } from "astro:transitions";
 import Footer from "../components/Footer.astro";
 import "../styles/global.css";
 
 interface Props {
-    title?: string;
+  title?: string;
 }
 
 const { title } = Astro.props as Props;
@@ -12,45 +12,40 @@ const { title } = Astro.props as Props;
 
 <!doctype html>
 <html lang="en" data-mode="human">
-    <head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width" />
-        <meta name="generator" content={Astro.generator} />
-        <title>{title ?? "Arthur VO"}</title>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title ?? "Arthur VO"}</title>
 
-        <ViewTransitions />
+    <ClientRouter />
 
-        <script is:inline>
-            const applyTheme = () => {
-                try {
-                    const savedMode = window.localStorage.getItem("site-mode");
-                    if (savedMode === "human" || savedMode === "tech") {
-                        document.documentElement.dataset.mode = savedMode;
-                    } else {
-                        document.documentElement.dataset.mode = "human";
-                    }
-                } catch {
-                    document.documentElement.dataset.mode = "human";
-                }
-            };
+    <script is:inline>
+      const applyInitialMode = () => {
+        try {
+          const savedMode = window.localStorage.getItem("site-mode");
+          if (savedMode === "human" || savedMode === "tech") {
+            document.documentElement.dataset.mode = savedMode;
+          } else {
+            document.documentElement.dataset.mode = "human";
+          }
+        } catch {
+          document.documentElement.dataset.mode = "human";
+        }
+      };
 
-            // Run on initial boot
-            applyTheme();
+      applyInitialMode();
+      document.addEventListener("astro:after-swap", applyInitialMode);
+    </script>
+  </head>
 
-            // Re-run instantly after the router swaps out the page content
-            document.addEventListener("astro:after-swap", applyTheme);
-        </script>
-    </head>
+  <body class="bg-background text-text antialiased min-h-screen flex flex-col">
+    <div class="crt-glass" aria-hidden="true"></div>
 
-    <body
-        class="bg-background text-text antialiased min-h-screen flex flex-col"
-    >
-        <div class="crt-glass" aria-hidden="true"></div>
+    <div class="flex-grow">
+      <slot />
+    </div>
 
-        <div class="flex-grow">
-            <slot />
-        </div>
-
-        <Footer />
-    </body>
+    <Footer />
+  </body>
 </html>
