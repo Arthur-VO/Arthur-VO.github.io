@@ -1,0 +1,56 @@
+---
+import { ViewTransitions } from "astro:transitions";
+import Footer from "../components/Footer.astro";
+import "../styles/global.css";
+
+interface Props {
+    title?: string;
+}
+
+const { title } = Astro.props as Props;
+---
+
+<!doctype html>
+<html lang="en" data-mode="human">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width" />
+        <meta name="generator" content={Astro.generator} />
+        <title>{title ?? "Arthur VO"}</title>
+
+        <ViewTransitions />
+
+        <script is:inline>
+            const applyTheme = () => {
+                try {
+                    const savedMode = window.localStorage.getItem("site-mode");
+                    if (savedMode === "human" || savedMode === "tech") {
+                        document.documentElement.dataset.mode = savedMode;
+                    } else {
+                        document.documentElement.dataset.mode = "human";
+                    }
+                } catch {
+                    document.documentElement.dataset.mode = "human";
+                }
+            };
+
+            // Run on initial boot
+            applyTheme();
+
+            // Re-run instantly after the router swaps out the page content
+            document.addEventListener("astro:after-swap", applyTheme);
+        </script>
+    </head>
+
+    <body
+        class="bg-background text-text antialiased min-h-screen flex flex-col"
+    >
+        <div class="crt-glass" aria-hidden="true"></div>
+
+        <div class="flex-grow">
+            <slot />
+        </div>
+
+        <Footer />
+    </body>
+</html>

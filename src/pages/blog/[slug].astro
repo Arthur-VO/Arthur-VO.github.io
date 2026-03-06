@@ -1,0 +1,150 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Header from "../../components/Header.astro";
+
+// 1. Tell Astro which pages to generate based on your markdown files
+export async function getStaticPaths() {
+    const blogEntries = await getCollection("blog");
+    return blogEntries.map((entry) => ({
+        params: { slug: entry.slug },
+        props: { entry },
+    }));
+}
+
+// 2. Get the specific data for the current post
+const { entry } = Astro.props;
+const { Content } = await entry.render();
+
+// Format the date nicely
+const formattedDate = entry.data.pubDate.toISOString().split("T")[0];
+---
+
+<BaseLayout title={`${entry.data.title} | Knowledge Graph`}>
+    <Header />
+
+    <main
+        class="mx-auto w-full max-w-3xl px-6 py-12 md:py-20 relative z-10 flex-grow"
+    >
+        <a
+            href="/"
+            class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-500 hover:text-[#38BDF8] transition-colors mb-8"
+        >
+            ← Return to System Root
+        </a>
+
+        <article
+            class="module overflow-hidden bg-[#05050A]/80 border-white/10 shadow-2xl backdrop-blur-xl"
+        >
+            <header
+                class="module-header border-b border-white/10 bg-white/5 flex-col items-start gap-2 py-4 md:flex-row md:items-center md:justify-between"
+            >
+                <span class="text-[#8B5CF6]"
+                    >[ SYS://KNOWLEDGE/{entry.data.category.toUpperCase()} ]</span
+                >
+                <span
+                    class="text-white/40 font-mono text-[10px] tracking-widest"
+                    >TIMESTAMP: {formattedDate}</span
+                >
+            </header>
+
+            <div class="module-body p-6 md:p-10">
+                <h1
+                    class="text-3xl md:text-5xl font-extrabold text-white mb-6 leading-tight"
+                >
+                    {entry.data.title}
+                </h1>
+
+                <div
+                    class="flex flex-wrap gap-2 mb-10 pb-10 border-b border-white/10"
+                >
+                    {
+                        entry.data.tags.map((tag: string) => (
+                            <span class="rounded bg-[#38BDF8]/10 border border-[#38BDF8]/20 px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-[#38BDF8]">
+                                #{tag}
+                            </span>
+                        ))
+                    }
+                </div>
+
+                <div
+                    class="prose-container text-slate-300 leading-relaxed space-y-6"
+                >
+                    <Content />
+                </div>
+            </div>
+        </article>
+    </main>
+</BaseLayout>
+
+<style is:global>
+    /* --- CUSTOM MARKDOWN STYLING --- */
+    /* This ensures your markdown content looks beautiful without needing an external plugin */
+
+    .prose-container h2 {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: white;
+        margin-top: 2.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .prose-container h3 {
+        font-size: 1.25rem;
+        font-weight: bold;
+        color: white;
+        margin-top: 2rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .prose-container p {
+        margin-bottom: 1.25rem;
+    }
+
+    .prose-container a {
+        color: #38bdf8;
+        text-decoration: none;
+        border-bottom: 1px dashed rgba(56, 189, 248, 0.4);
+        transition: all 0.2s ease-in-out;
+    }
+
+    .prose-container a:hover {
+        border-bottom-style: solid;
+        color: white;
+        text-shadow: 0 0 8px rgba(56, 189, 248, 0.6);
+    }
+
+    .prose-container strong {
+        color: white;
+    }
+
+    .prose-container ul {
+        list-style-type: square;
+        padding-left: 1.5rem;
+        margin-bottom: 1.25rem;
+        color: #8b5cf6; /* Purple bullets */
+    }
+
+    .prose-container ul li span {
+        color: #cbd5e1; /* Slate-300 text */
+    }
+
+    /* --- TECH MODE OVERRIDES --- */
+    /* When the user clicks the toggle, the reading experience becomes a terminal! */
+    html[data-mode="tech"] .prose-container {
+        font-family:
+            ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+            "Liberation Mono", "Courier New", monospace;
+        font-size: 0.9rem;
+    }
+
+    html[data-mode="tech"] .prose-container h2::before {
+        content: "## ";
+        color: #8b5cf6;
+    }
+
+    html[data-mode="tech"] .prose-container h3::before {
+        content: "### ";
+        color: #8b5cf6;
+    }
+</style>

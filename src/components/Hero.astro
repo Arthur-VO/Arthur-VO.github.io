@@ -1,0 +1,102 @@
+<section class="mx-auto w-full max-w-5xl px-6 py-10 md:py-16">
+    <article class="module relative overflow-hidden">
+        <div
+            class="pointer-events-none absolute -top-32 -right-32 h-64 w-64 rounded-full bg-[#38BDF8] opacity-10 blur-[80px]"
+        >
+        </div>
+        <div
+            class="pointer-events-none absolute -bottom-32 -left-32 h-64 w-64 rounded-full bg-[#8B5CF6] opacity-10 blur-[80px]"
+        >
+        </div>
+
+        <div class="module-header border-b border-white/10 bg-white/5">
+            <span class="flex items-center gap-3 text-[#38BDF8]">
+                <span class="relative flex h-2 w-2">
+                    <span
+                        class="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#38BDF8] opacity-75"
+                    ></span>
+                    <span
+                        class="relative inline-flex rounded-full h-2 w-2 bg-[#38BDF8]"
+                    ></span>
+                </span>
+                SYS://IDENTITY/PROFILE
+            </span>
+            <span class="text-white/30 hidden md:inline-block"
+                >STATUS: ONLINE // UPTIME: 99.9%</span
+            >
+        </div>
+
+        <div
+            class="module-body relative z-10 px-6 py-12 md:px-12 md:py-20 flex flex-col items-start"
+        >
+            <div
+                class="identity-badge mb-6 inline-flex items-center gap-2 rounded border px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] transition-colors duration-300"
+            >
+                <span>Arthur Van Oudenhove</span>
+            </div>
+
+            <h1
+                data-hero-title
+                class="mb-6 max-w-3xl text-4xl font-extrabold leading-tight text-white md:text-6xl drop-shadow-md"
+            >
+                The Full-Stack Historian.
+            </h1>
+
+            <p
+                data-hero-subtitle
+                class="mb-10 max-w-2xl text-lg text-slate-400 leading-relaxed"
+            >
+                Understanding where technology comes from is the best way to
+                build where it's going. I navigate the AI landscape by applying
+                decades of proven system principles.
+            </p>
+
+            <div class="flex flex-wrap items-center gap-4">
+                <button
+                    onclick="window.scrollBy({top: 600, behavior: 'smooth'})"
+                    class="inline-flex items-center gap-2 rounded-lg bg-[#38BDF8] px-6 py-3 text-xs font-bold uppercase tracking-widest text-[#05050A] transition-all hover:bg-white hover:shadow-[0_0_20px_rgba(56,189,248,0.4)]"
+                >
+                    What I work on
+                </button>
+                <button
+                    onclick="window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'})"
+                    class="inline-flex items-center gap-2 rounded-lg border border-white/20 bg-black/40 backdrop-blur-sm px-6 py-3 text-xs font-bold uppercase tracking-widest text-white transition-all hover:border-[#8B5CF6] hover:bg-[#8B5CF6]/10"
+                >
+                    What I'm interested in
+                </button>
+            </div>
+        </div>
+    </article>
+</section>
+
+<script type="module">
+    import { $mode, ensureModeSync } from "../stores/mode";
+    ensureModeSync();
+
+    const heroTitle = document.querySelector("[data-hero-title]");
+    const heroSubtitle = document.querySelector("[data-hero-subtitle]");
+
+    // Data voor beide modussen
+    const modeContent = {
+        human: {
+            title: "The Full-Stack Historian.",
+            subtitle:
+                "Understanding where technology comes from is the best way to build where it's going. I navigate the AI landscape by applying decades of proven system principles.",
+        },
+        tech: {
+            title: "Legacy principles. Modern execution.",
+            subtitle:
+                "Full-stack historicus. Interfacing classic Unix philosophies with modern AI capabilities to build high-performance, hype-free digital infrastructure.",
+        },
+    };
+
+    const updateHero = (mode) => {
+        if (heroTitle && heroSubtitle) {
+            heroTitle.textContent = modeContent[mode].title;
+            heroSubtitle.textContent = modeContent[mode].subtitle;
+        }
+    };
+
+    updateHero($mode.get());
+    $mode.listen(updateHero);
+</script>

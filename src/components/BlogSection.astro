@@ -1,0 +1,23 @@
+---
+import { getCollection } from "astro:content";
+import BlogGraph from "./BlogGraph";
+
+// De component haalt zelf de blogposts op
+const blogPosts = await getCollection("blog");
+---
+
+<section class="mt-16">
+    <div class="mb-10">
+        <h2
+            class="text-3xl font-bold tracking-wide text-white md:text-4xl mb-4"
+        >
+            Knowledge
+        </h2>
+        <p class="text-slate-400 max-w-2xl leading-relaxed">
+            An associative network of thoughts, notes, and research. Nodes
+            gravitate towards shared concepts.
+        </p>
+    </div>
+
+    <BlogGraph client:only="react" posts={blogPosts} />
+</section>
