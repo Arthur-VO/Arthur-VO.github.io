@@ -1,0 +1,210 @@
+@import "tailwindcss";
+@config "../../tailwind.config.mjs";
+
+:root {
+    --font-tech: 'JetBrains Mono', 'IBM Plex Mono', 'SFMono-Regular', Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+    --font-human: 'Inter', 'Avenir Next', 'Segoe UI', 'Trebuchet MS', 'Gill Sans', Arial, sans-serif;
+
+    /* 2026 Glassmorphism Theme */
+    --color-bg: #05050A;
+    --color-text: #F8FAFC;
+    --color-ice-blue: #38BDF8;
+    --color-purple: #8B5CF6;
+
+    --ui-border: rgba(255, 255, 255, 0.08);
+    --ui-bg: rgba(255, 255, 255, 0.03);
+    --ui-bg-header: rgba(0, 0, 0, 0.3);
+}
+
+html[data-mode='tech'] {
+    --ui-border: rgba(139, 92, 246, 0.3);
+    --ui-bg: rgba(139, 92, 246, 0.04);
+}
+
+html,
+body {
+    margin: 0;
+    min-height: 100%;
+    background-color: var(--color-bg);
+    color: var(--color-text);
+}
+
+/* Subtiel bewegende Mesh Gradient Achtergrond */
+body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background:
+        radial-gradient(circle at 15% 50%, rgba(56, 189, 248, 0.06), transparent 40%),
+        radial-gradient(circle at 85% 30%, rgba(139, 92, 246, 0.06), transparent 40%);
+    animation: mesh-movement 15s ease-in-out infinite alternate;
+}
+
+@keyframes mesh-movement {
+    0% {
+        transform: scale(1) translate(0, 0);
+    }
+
+    50% {
+        transform: scale(1.05) translate(2%, 2%);
+    }
+
+    100% {
+        transform: scale(1) translate(-2%, -1%);
+    }
+}
+
+html[data-mode='tech'] body {
+    font-family: var(--font-tech);
+}
+
+html[data-mode='human'] body {
+    font-family: var(--font-human);
+}
+
+/* --- GLASSMORPHISM MODULES --- */
+.module,
+.module-item,
+.system-console-panel {
+    border: 1px solid var(--ui-border);
+    border-radius: 1rem;
+    /* Strakkere, rondere hoeken */
+    background: var(--ui-bg);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    transition: all 0.3s ease;
+}
+
+.module-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.75rem 1.25rem;
+    border-bottom: 1px solid var(--ui-border);
+    background: var(--ui-bg-header);
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--color-ice-blue);
+}
+
+.module-body {
+    padding: 1.5rem;
+}
+
+.module-item-body {
+    padding: 1.25rem 1.5rem;
+}
+
+/* Typografie en Iconen */
+.text-text,
+body {
+    text-shadow: none;
+    /* Geen retro glow meer */
+}
+
+.ascii-marker {
+    color: var(--color-purple);
+}
+
+.text-traces {
+    color: var(--color-ice-blue);
+}
+
+.human-icon {
+    filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.5));
+    color: var(--color-ice-blue);
+}
+
+html[data-mode='tech'] h1,
+html[data-mode='tech'] h2 {
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-purple);
+}
+
+/* System Console Updates */
+.console-viewport {
+    height: 6.75rem;
+    overflow-y: auto;
+    font-family: var(--font-tech);
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+}
+
+.console-stream {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.console-cursor {
+    display: inline-block;
+    width: 0.6em;
+    height: 1.1em;
+    background-color: var(--color-ice-blue);
+    vertical-align: middle;
+    margin-left: 4px;
+    animation: console-cursor-blink 1s steps(1, end) infinite;
+}
+
+@keyframes console-cursor-blink {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    body::before {
+        animation: none;
+    }
+
+    .console-cursor {
+        animation: none;
+    }
+}
+
+/* --- DYNAMISCHE IDENTITEIT (Human vs Tech) --- */
+:root {
+    --id-text: var(--color-text);
+    /* Zilver/Wit in Human mode */
+    --id-bg: rgba(255, 255, 255, 0.05);
+    --id-border: rgba(255, 255, 255, 0.2);
+    --id-glow: rgba(255, 255, 255, 0.6);
+}
+
+html[data-mode='tech'] {
+    --id-text: var(--color-purple);
+    /* Paars in Tech mode */
+    --id-bg: rgba(139, 92, 246, 0.1);
+    --id-border: rgba(139, 92, 246, 0.3);
+    --id-glow: rgba(139, 92, 246, 0.6);
+}
+
+/* Custom classes voor de elementen */
+.identity-link {
+    color: var(--id-text);
+}
+
+.identity-link:hover {
+    color: #ffffff;
+    filter: drop-shadow(0 0 8px var(--id-glow));
+}
+
+.identity-badge {
+    color: var(--id-text);
+    background-color: var(--id-bg);
+    border-color: var(--id-border);
+}

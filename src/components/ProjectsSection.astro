@@ -1,0 +1,23 @@
+---
+import { getCollection } from "astro:content";
+import GitProjectMap from "./GitProjectMap";
+
+// De component haalt nu ZELF zijn data op
+const projects = await getCollection("projects");
+---
+
+<section class="mt-16">
+    <div class="mb-10">
+        <h2
+            class="text-3xl text-white font-bold tracking-wide md:text-4xl mb-4"
+        >
+            Projects
+        </h2>
+        <p class="text-slate-400 max-w-2xl leading-relaxed">
+            A visual history of active and merged feature-branches. Tracking
+            open-source tools, networking experiments, and AI pipelines.
+        </p>
+    </div>
+
+    <GitProjectMap client:load projects={projects} />
+</section>

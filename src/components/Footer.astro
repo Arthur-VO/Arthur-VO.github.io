@@ -1,0 +1,189 @@
+---
+import { getCollection, type CollectionEntry } from "astro:content";
+import { stat } from "fs/promises";
+import { isAbsolute, join } from "path";
+import { fileURLToPath } from "url";
+
+type ContentEntry =
+    | CollectionEntry<"projects">
+    | CollectionEntry<"blog">
+    | CollectionEntry<"signal">;
+type LogType = "PROJECT" | "BLOG" | "SIGNAL";
+
+interface SystemLog {
+    timestamp: Date;
+    stamp: string;
+    type: LogType;
+    message: string;
+}
+
+const projectRoot = fileURLToPath(new URL("../../", import.meta.url));
+const formatTimestamp = (date: Date) =>
+    date.toISOString().slice(0, 16).replace("T", " ");
+
+const resolveEntryTimestamp = async (entry: ContentEntry) => {
+    if (entry.collection === "blog") return entry.data.pubDate;
+    const candidates = new Set<string>();
+    if (entry.filePath) {
+        if (isAbsolute(entry.filePath)) candidates.add(entry.filePath);
+        else {
+            candidates.add(join(projectRoot, entry.filePath));
+            candidates.add(join(projectRoot, "src", entry.filePath));
+        }
+    }
+    candidates.add(
+        join(projectRoot, "src/content", entry.collection, `${entry.id}.md`),
+    );
+    candidates.add(
+        join(projectRoot, "src/content", entry.collection, `${entry.id}.mdx`),
+    );
+    for (const filePath of candidates) {
+        try {
+            const fileStats = await stat(filePath);
+            return fileStats.mtime;
+        } catch {}
+    }
+    return new Date(0);
+};
+
+const toSystemLog = async (entry: ContentEntry): Promise<SystemLog> => {
+    const timestamp = await resolveEntryTimestamp(entry);
+    if (entry.collection === "projects") {
+        return {
+            timestamp,
+            stamp: formatTimestamp(timestamp),
+            type: "PROJECT",
+            message: `Indexed project "${entry.data.title}"`,
+        };
+    }
+    if (entry.collection === "signal") {
+        return {
+            timestamp,
+            stamp: formatTimestamp(timestamp),
+            type: "SIGNAL",
+            message: `Captured issue #${entry.data.issue_number} "${entry.data.title}"`,
+        };
+    }
+    return {
+        timestamp,
+        stamp: formatTimestamp(timestamp),
+        type: "BLOG",
+        message: `Published post "${entry.data.title}"`,
+    };
+};
+
+const getRecentSystemLogs = async () => {
+    const [projects, blog, signal] = await Promise.all([
+        getCollection("projects"),
+        getCollection("blog"),
+        getCollection("signal"),
+    ]);
+    const allEntries: ContentEntry[] = [...projects, ...blog, ...signal];
+    const logs = await Promise.all(
+        allEntries.map((entry) => toSystemLog(entry)),
+    );
+    return logs
+        .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
+        .slice(0, 4); // Pak de laatste 4
+};
+
+const logs = await getRecentSystemLogs();
+---
+
+<footer
+    class="w-full border-t border-white/10 bg-[#05050A] mt-auto relative z-40"
+>
+    <div class="mx-auto w-full max-w-5xl px-6 py-10 md:py-14">
+        <div class="footer-human">
+            <div
+                class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6"
+            >
+                <div class="flex flex-col gap-2">
+                    <span
+                        class="text-white font-bold tracking-widest uppercase text-sm"
+                        >Arthur Van Oudenhove</span
+                    >
+                    <span class="text-slate-500 text-xs"
+                        >The Full-Stack Historian. &copy; {
+                            new Date().getFullYear()
+                        }</span
+                    >
+                </div>
+                <div
+                    class="flex gap-6 text-xs font-bold uppercase tracking-widest text-slate-400"
+                >
+                    <a
+                        href="https://github.com/Arthur-VO"
+                        target="_blank"
+                        class="hover:text-[#38BDF8] transition-colors">GitHub</a
+                    >
+                    <a
+                        href="https://linkedin.com"
+                        target="_blank"
+                        class="hover:text-[#38BDF8] transition-colors"
+                        >LinkedIn</a
+                    >
+                    <a
+                        href="/signal"
+                        class="hover:text-[#38BDF8] transition-colors"
+                        >The Signal</a
+                    >
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-tech hidden">
+            <div
+                class="mb-6 flex items-center justify-between text-[#8B5CF6] text-xs font-bold uppercase tracking-widest border-b border-white/10 pb-3"
+            >
+                <span>[ SYS://RACK_STORAGE ]</span>
+                <span class="flex items-center gap-2">
+                    <span class="relative flex h-2 w-2">
+                        <span
+                            class="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#38BDF8] opacity-75"
+                        ></span>
+                        <span
+                            class="relative inline-flex rounded-full h-2 w-2 bg-[#38BDF8]"
+                        ></span>
+                    </span>
+                    UPTIME: 99.9%
+                </span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {
+                    logs.map((log) => (
+                        <div class="flex items-start gap-4 rounded-lg border border-white/5 bg-black/40 backdrop-blur-sm p-4 transition-colors hover:border-white/10">
+                            <div class="mt-1 h-2 w-2 rounded-sm bg-[#38BDF8] shadow-[0_0_8px_rgba(56,189,248,0.6)] shrink-0" />
+                            <div class="flex flex-col gap-1.5">
+                                <span class="text-[#8B5CF6] font-mono text-[10px] uppercase tracking-widest">
+                                    {log.stamp} // {log.type}
+                                </span>
+                                <span class="text-white/80 font-mono text-xs">
+                                    {log.message}
+                                </span>
+                            </div>
+                        </div>
+                    ))
+                }
+            </div>
+        </div>
+    </div>
+</footer>
+
+<style>
+    /* CSS om naadloos te schakelen tussen de twee footers op basis van de state */
+    .footer-tech {
+        display: none;
+    }
+    .footer-human {
+        display: block;
+    }
+
+    html[data-mode="tech"] .footer-tech {
+        display: block;
+    }
+    html[data-mode="tech"] .footer-human {
+        display: none;
+    }
+</style>
