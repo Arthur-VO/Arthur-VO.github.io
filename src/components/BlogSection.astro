@@ -7,17 +7,39 @@ const blogPosts = await getCollection("blog");
 ---
 
 <section class="mt-16">
-    <div class="mb-10">
-        <h2
-            class="text-3xl font-bold tracking-wide text-white md:text-4xl mb-4"
-        >
-            Knowledge
-        </h2>
-        <p class="text-slate-400 max-w-2xl leading-relaxed">
-            An associative network of thoughts, notes, and research. Nodes
-            gravitate towards shared concepts.
-        </p>
-    </div>
+  <div class="mb-10">
+    <h2 class="text-3xl font-bold tracking-wide text-white md:text-4xl mb-4">
+      Knowledge
+    </h2>
+    <p class="blog-section-copy-human text-slate-400 max-w-2xl leading-relaxed">
+      An associative network of thoughts, notes, and research. Nodes gravitate
+      towards shared concepts.
+    </p>
+    <p
+      class="blog-section-copy-tech hidden text-slate-400 max-w-2xl leading-relaxed font-mono"
+    >
+      > Directed graph of research nodes and linked tags. Query by adjacency and
+      conceptual overlap.
+    </p>
+  </div>
 
-    <BlogGraph client:only="react" posts={blogPosts} />
+  <BlogGraph client:only="react" posts={blogPosts} />
 </section>
+
+<style is:global>
+  html[data-mode="human"] .blog-section-copy-tech {
+    display: none;
+  }
+
+  html[data-mode="human"] .blog-section-copy-human {
+    display: block;
+  }
+
+  html[data-mode="tech"] .blog-section-copy-human {
+    display: none;
+  }
+
+  html[data-mode="tech"] .blog-section-copy-tech {
+    display: block;
+  }
+</style>

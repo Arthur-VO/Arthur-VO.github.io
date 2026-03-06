@@ -1,6 +1,6 @@
 import { AnimatePresence, LayoutGroup, motion } from 'framer-motion';
 import { Activity, ArrowUpRight, Radio } from 'lucide-react';
-import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import { $mode, ensureModeSync, type Mode } from '../stores/mode';
 
 type NodeId = 'root' | 'signal' | 'portier' | 'mainframe';
@@ -25,7 +25,6 @@ interface Props {
 const center = { x: 500, y: 320 };
 const TRACE_BASE = 'rgba(255, 255, 255, 0.15)';
 const ICE_BLUE = '#38BDF8';
-const SOFT_PURPLE = '#8B5CF6';
 
 const nodePositions: Record<NodeId, { x: number; y: number }> = {
   root: { x: 500, y: 130 },
@@ -61,6 +60,21 @@ export default function SpiderWebMap({ nodes }: Props) {
   const mode = useSyncExternalStore(modeSubscribe, getModeSnapshot, getModeSnapshot);
   const [activeNodeId, setActiveNodeId] = useState<NodeId | null>(null);
   const [hoveredNodeId, setHoveredNodeId] = useState<NodeId | null>(null);
+
+  // Track container width for responsive adjustments
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        setIsMobile(entry.contentRect.width < 640);
+      }
+    });
+    observer.observe(containerRef.current);
+    return () => observer.disconnect();
+  }, []);
 
   // States voor de levende interface effecten
   const [isBooting, setIsBooting] = useState(false);
@@ -117,7 +131,7 @@ export default function SpiderWebMap({ nodes }: Props) {
           </div>
 
           <div className="module-body p-2 md:p-4">
-            <div className="relative aspect-[16/10] w-full overflow-hidden rounded-lg border border-white/5 bg-black/20">
+            <div ref={containerRef} className="relative aspect-[4/3] sm:aspect-[16/10] w-full overflow-hidden rounded-lg border border-white/5 bg-black/20">
 
               {/* 1. DEEP DIVE ACHTERGROND (Zoomt en Blurt bij openen) */}
               <motion.div
@@ -214,10 +228,11 @@ export default function SpiderWebMap({ nodes }: Props) {
                       key={node.id}
                       type="button"
                       layoutId={`node-${node.id}`}
-                      className="pointer-events-auto absolute flex -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-2"
+                      className="pointer-events-auto absolute flex -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-2 min-w-[44px] min-h-[44px] justify-center"
                       style={{ left: `${position.x / 10}%`, top: `${position.y / 6.4}%` }}
                       onMouseEnter={() => setHoveredNodeId(node.id)}
                       onMouseLeave={() => setHoveredNodeId((current) => (current === node.id ? null : current))}
+                      onTouchStart={() => setHoveredNodeId(node.id)}
                       onFocus={() => setHoveredNodeId(node.id)}
                       onBlur={() => setHoveredNodeId((current) => (current === node.id ? null : current))}
                       onClick={() => setActiveNodeId(node.id)}
@@ -261,13 +276,15 @@ export default function SpiderWebMap({ nodes }: Props) {
                           key={mode} // Glitch animatie op de Human/Tech mode switch
                           initial={{ opacity: 0, x: (Math.random() - 0.5) * 10 }}
                           animate={{ opacity: 1, x: 0 }}
-                          className="rounded border border-white/5 bg-black/40 px-2 py-1 text-center text-[10px] uppercase tracking-widest text-white/70"
+                          className="rounded border border-white/5 bg-black/40 px-2 py-1 text-center text-[10px] sm:text-xs uppercase tracking-widest text-white/70"
                         >
                           {node.labels[mode]}
                         </motion.span>
-                        <span className="text-[8px] font-mono text-[#38BDF8]/60">
-                          PNG: {metrics.ping + (node.id.length % 5)}ms
-                        </span>
+                        {!isMobile && (
+                          <span className="text-[8px] font-mono text-[#38BDF8]/60">
+                            PNG: {metrics.ping + (node.id.length % 5)}ms
+                          </span>
+                        )}
                       </div>
                     </motion.button>
                   );
@@ -314,7 +331,7 @@ export default function SpiderWebMap({ nodes }: Props) {
                           initial={{ opacity: 0 }}
                           animate={{ opacity: 1 }}
                           transition={{ duration: 0.3 }}
-                          className={`p-8 ${mode === 'tech' ? 'font-mono' : 'font-sans'}`}
+                          className={`p-5 md:p-8 ${mode === 'tech' ? 'font-mono' : 'font-sans'}`}
                         >
                           <h2 className="mb-4 text-2xl font-bold text-white">
                             {mode === 'tech' ? `SYS.${activeNode.title.toUpperCase()}` : activeNode.title}

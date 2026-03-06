@@ -1,0 +1,91 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+
+// Dit is de cruciale functie! Let goed op het woordje 'export'
+export async function getStaticPaths() {
+  const allPosts = await getCollection('blog');
+  
+  // Veiligheidscheck: we zorgen dat tags altijd een array is, zelfs als je het vergeet in je markdown
+  const allTags = allPosts.map((post) => post.data.tags || []).flat();
+  const uniqueTags = [...new Set(allTags)];
+
+  return uniqueTags.map((tag) => {
+    // Zoek alle posts die DEZE specifieke tag hebben
+    const filteredPosts = allPosts.filter((post) => {
+        const postTags = post.data.tags || [];
+        return postTags.includes(tag);
+    });
+    
+    return {
+      params: { slug: tag },
+      props: { posts: filteredPosts },
+    };
+  });
+}
+
+// Data ophalen uit de gegenereerde paden
+const { slug } = Astro.params;
+const tag = slug;
+const { posts } = Astro.props;
+
+// Sorteer de gevonden posts op datum (nieuwste eerst)
+posts.sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime());
+---
+
+<BaseLayout title={`#${tag} | Tag Index`}>
+  <Header />
+  
+  <main class="mx-auto w-full max-w-3xl px-6 py-12 md:py-20 relative z-10 flex-grow">
+    
+    <a href="/" class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-500 hover:text-[#38BDF8] transition-colors mb-8">
+      ← Return to System Root
+    </a>
+
+    <div class="mb-12 border-b border-white/10 pb-8">
+      <div class="mb-4 inline-flex items-center gap-2 rounded border border-[#8B5CF6]/30 bg-[#8B5CF6]/10 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-[#8B5CF6]">
+        <span>Knowledge Index</span>
+      </div>
+      <h1 class="text-3xl font-extrabold tracking-wide text-white md:text-5xl mb-4 flex items-center gap-2">
+        <span class="text-[#38BDF8]">#</span>{tag}
+      </h1>
+      <p class="text-slate-400 max-w-2xl leading-relaxed">
+        Found {posts.length} {posts.length === 1 ? 'node' : 'nodes'} in the knowledge base associated with this concept.
+      </p>
+    </div>
+
+    <div class="flex flex-col gap-4">
+      {posts.map(post => (
+        <a href={`/blog/${post.slug}`} class="group relative flex flex-col gap-4 rounded-xl border border-white/5 bg-[#05050A]/80 p-6 backdrop-blur-md transition-all hover:border-[#8B5CF6]/40 hover:bg-white/[0.02]">
+          
+          <div class="flex flex-col gap-2">
+            <span class="text-[10px] font-mono uppercase tracking-widest text-[#8B5CF6]">
+              [ {post.data.pubDate.toISOString().split('T')[0]} ] // {post.data.category}
+            </span>
+            <h2 class="text-xl font-bold text-white group-hover:text-[#38BDF8] transition-colors">
+              {post.data.title}
+            </h2>
+            
+            <p class="tag-post-desc-human text-sm text-slate-400 mt-2 line-clamp-2">
+              {post.data.description_human}
+            </p>
+            <p class="tag-post-desc-tech text-sm text-slate-400 mt-2 line-clamp-2 hidden font-mono">
+              > {post.data.description_tech}
+            </p>
+          </div>
+          
+        </a>
+      ))}
+    </div>
+
+  </main>
+</BaseLayout>
+
+<style is:global>
+  html[data-mode='human'] .tag-post-desc-tech { display: none; }
+  html[data-mode='human'] .tag-post-desc-human { display: block; }
+  
+  html[data-mode='tech'] .tag-post-desc-human { display: none; }
+  html[data-mode='tech'] .tag-post-desc-tech { display: block; }
+</style>

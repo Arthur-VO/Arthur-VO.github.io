@@ -1,7 +1,7 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowUpRight, CircleDot, GitBranch, GitMerge } from 'lucide-react';
-import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
-import { $mode, ensureModeSync, type Mode } from '../stores/mode';
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
+import { $mode, ensureModeSync } from '../stores/mode';
 
 interface Project {
     id: string;
@@ -44,6 +44,23 @@ export default function GitProjectMap({ projects }: Props) {
     useEffect(() => { ensureModeSync(); }, []);
     const mode = useSyncExternalStore(modeSubscribe, getModeSnapshot, getModeSnapshot);
     const [activeProject, setActiveProject] = useState<Project | null>(null);
+
+    // Track container width for responsive behavior
+    const scrollContainerRef = useRef<HTMLDivElement>(null);
+    const [containerWidth, setContainerWidth] = useState(900);
+
+    useEffect(() => {
+        if (!scrollContainerRef.current) return;
+        const observer = new ResizeObserver((entries) => {
+            for (const entry of entries) {
+                setContainerWidth(entry.contentRect.width);
+            }
+        });
+        observer.observe(scrollContainerRef.current);
+        return () => observer.disconnect();
+    }, []);
+
+    const isMobile = containerWidth < 768;
 
     // 1. Dynamische configuratie voor lanes en kleuren
     const layoutConfig = useMemo(() => {
@@ -149,9 +166,9 @@ export default function GitProjectMap({ projects }: Props) {
                     <span className="text-white/40">{layoutConfig.uniqueTopics.length} TOPICS // {projects.length} BRANCHES</span>
                 </div>
 
-                <div className="overflow-hidden">
-                    <div className="relative w-full" style={{ height: layoutConfig.svgHeight }}>
-                        <svg className="absolute inset-0 h-full w-full" viewBox={`0 0 ${renderMaxX} ${layoutConfig.svgHeight}`} preserveAspectRatio="none" aria-hidden="true">
+                <div ref={scrollContainerRef} className="overflow-x-auto overflow-y-hidden">
+                    <div className="relative" style={{ width: isMobile ? Math.max(renderMaxX, containerWidth) : '100%', height: layoutConfig.svgHeight }}>
+                        <svg className="absolute inset-0 h-full w-full" viewBox={`0 0 ${renderMaxX} ${layoutConfig.svgHeight}`} preserveAspectRatio="xMinYMid meet" aria-hidden="true">
                             {/* Main Branch Line */}
                             <line x1="0" y1={layoutConfig.mainY} x2={renderMaxX} y2={layoutConfig.mainY} stroke="rgba(255,255,255,0.1)" strokeWidth="4" />
                             <text x="20" y={layoutConfig.mainY - 15} fill="rgba(255,255,255,0.3)" fontSize="12" fontFamily="monospace" letterSpacing="2">main</text>
@@ -224,13 +241,13 @@ export default function GitProjectMap({ projects }: Props) {
                             return (
                                 <button
                                     key={`btn-${project.id}`}
-                                    className="absolute flex flex-col items-center -translate-x-1/2 -translate-y-1/2 transition-transform hover:scale-110 z-10"
+                                    className="absolute flex flex-col items-center -translate-x-1/2 -translate-y-1/2 transition-transform hover:scale-110 z-10 min-h-[44px]"
                                     style={{ left: `${middleXPct}%`, top: coords.y }}
                                     // DE FIX: Geen hover meer, maar een klik die het project selecteert (of deselecteert)
                                     onClick={() => setActiveProject(isSelected ? null : project)}
                                 >
-                                    <div className={`mt-4 flex flex-col items-center bg-[#05050A]/90 px-3 py-2 rounded-lg backdrop-blur-md shadow-xl whitespace-nowrap transition-colors ${isSelected ? 'border-2' : 'border'}`} style={{ borderColor: isSelected ? color : 'rgba(255,255,255,0.1)' }}>
-                                        <span className="text-white font-bold text-sm mb-1">{project.data.title}</span>
+                                    <div className={`mt-4 flex flex-col items-center bg-[#05050A]/90 px-3 py-2 rounded-lg backdrop-blur-md shadow-xl transition-colors ${isSelected ? 'border-2' : 'border'}`} style={{ borderColor: isSelected ? color : 'rgba(255,255,255,0.1)' }}>
+                                        <span className="text-white font-bold text-xs sm:text-sm mb-1">{project.data.title}</span>
                                         <div className="flex gap-2 items-center text-[10px] uppercase tracking-widest" style={{ color }}>
                                             {project.data.status === 'active' ? <CircleDot size={12} /> : <GitMerge size={12} />}
                                             {project.data.status}
@@ -240,6 +257,12 @@ export default function GitProjectMap({ projects }: Props) {
                             );
                         })}
                     </div>
+                    {/* Mobile swipe hint */}
+                    {isMobile && (
+                        <div className="flex items-center justify-center gap-2 py-2 text-[10px] uppercase tracking-widest text-slate-500">
+                            <span>← Swipe to explore →</span>
+                        </div>
+                    )}
                 </div>
 
                 {/* Info paneel */}
@@ -262,23 +285,34 @@ export default function GitProjectMap({ projects }: Props) {
                                         {mode === 'tech' ? activeProject.data.tagline_tech : activeProject.data.tagline_human}
                                     </p>
                                 </div>
-                                <div className="flex flex-col justify-center items-start md:items-end border-l border-white/10 pl-6">
+                                <div className="flex flex-col justify-center items-start md:items-end border-l-0 md:border-l border-white/10 pl-0 md:pl-6 pt-4 md:pt-0">
                                     <span className="text-xs uppercase tracking-widest text-slate-500 mb-1">Project Lifecycle</span>
                                     <span className="text-sm font-mono text-white/80">
                                         {activeProject.data.startDate.toISOString().split('T')[0]}
                                         {' → '}
                                         {activeProject.data.endDate ? activeProject.data.endDate.toISOString().split('T')[0] : 'PRESENT'}
                                     </span>
-                                    {/* De link is nu veilig klikbaar! */}
-                                    <a href={activeProject.data.url} target="_blank" rel="noreferrer" className="mt-4 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[#38BDF8] hover:text-white transition-colors">
-                                        View Repository <ArrowUpRight size={14} />
+                                <div className="mt-5 flex items-center gap-4">
+                                    <a 
+                                    href={`/projects/${activeProject.slug}`} 
+                                    className="inline-flex items-center gap-2 rounded bg-[#38BDF8]/10 border border-[#38BDF8]/30 px-3 py-2 text-xs font-bold uppercase tracking-widest text-[#38BDF8] hover:bg-[#38BDF8] hover:text-[#05050A] transition-all shadow-[0_0_10px_rgba(56,189,248,0.1)] hover:shadow-[0_0_15px_rgba(56,189,248,0.4)]"
+                                    >
+                                    {mode === 'tech' ? 'Open Runtime Spec' : 'Read Case Study'}
                                     </a>
+                                    <a 
+                                    href={activeProject.data.url} 
+                                    target="_blank" 
+                                    rel="noreferrer" 
+                                    className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-slate-500 hover:text-white transition-colors"
+                                    >
+                                    GitHub <ArrowUpRight size={14} />
+                                    </a>
+                                </div>
                                 </div>
                             </motion.div>
                         ) : (
                             <div className="h-full flex items-center justify-center text-slate-500 text-sm tracking-widest uppercase">
-                                {/* Tekst geüpdatet voor duidelijkheid */}
-                                Select a project to view data
+                                {mode === 'tech' ? 'Select a branch to inspect payload' : 'Select a project to view details'}
                             </div>
                         )}
                     </AnimatePresence>

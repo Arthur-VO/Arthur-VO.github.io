@@ -99,6 +99,16 @@ html[data-mode='human'] body {
     padding: 1.25rem 1.5rem;
 }
 
+@media (max-width: 639px) {
+    .module-body {
+        padding: 1rem;
+    }
+
+    .module-item-body {
+        padding: 0.75rem 1rem;
+    }
+}
+
 /* Typografie en Iconen */
 .text-text,
 body {

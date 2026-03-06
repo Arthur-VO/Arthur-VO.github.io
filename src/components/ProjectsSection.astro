@@ -7,17 +7,41 @@ const projects = await getCollection("projects");
 ---
 
 <section class="mt-16">
-    <div class="mb-10">
-        <h2
-            class="text-3xl text-white font-bold tracking-wide md:text-4xl mb-4"
-        >
-            Projects
-        </h2>
-        <p class="text-slate-400 max-w-2xl leading-relaxed">
-            A visual history of active and merged feature-branches. Tracking
-            open-source tools, networking experiments, and AI pipelines.
-        </p>
-    </div>
+  <div class="mb-10">
+    <h2 class="text-3xl text-white font-bold tracking-wide md:text-4xl mb-4">
+      Projects
+    </h2>
+    <p
+      class="projects-section-copy-human text-slate-400 max-w-2xl leading-relaxed"
+    >
+      A visual history of active and merged feature-branches. Tracking
+      open-source tools, networking experiments, and AI pipelines.
+    </p>
+    <p
+      class="projects-section-copy-tech hidden text-slate-400 max-w-2xl leading-relaxed font-mono"
+    >
+      > Timeline topology of active and merged branches across open-source
+      tools, networking experiments, and AI pipelines.
+    </p>
+  </div>
 
-    <GitProjectMap client:load projects={projects} />
+  <GitProjectMap client:load projects={projects} />
 </section>
+
+<style is:global>
+  html[data-mode="human"] .projects-section-copy-tech {
+    display: none;
+  }
+
+  html[data-mode="human"] .projects-section-copy-human {
+    display: block;
+  }
+
+  html[data-mode="tech"] .projects-section-copy-human {
+    display: none;
+  }
+
+  html[data-mode="tech"] .projects-section-copy-tech {
+    display: block;
+  }
+</style>
