@@ -24,13 +24,15 @@ export default function BlogGraph({ posts }: Props) {
 
     const containerRef = useRef<HTMLDivElement>(null);
     const [dimensions, setDimensions] = useState({ width: 800, height: 400 });
+    const isMobile = dimensions.width < 640;
 
     // Zorgt ervoor dat het canvas altijd de breedte van de module volgt
     useEffect(() => {
         if (!containerRef.current) return;
         const resizeObserver = new ResizeObserver((entries) => {
             for (let entry of entries) {
-                setDimensions({ width: entry.contentRect.width, height: 450 });
+                const w = entry.contentRect.width;
+                setDimensions({ width: w, height: w < 640 ? 300 : 450 });
             }
         });
         resizeObserver.observe(containerRef.current);
@@ -43,9 +45,13 @@ export default function BlogGraph({ posts }: Props) {
         const links: any[] = [];
         const tags = new Set<string>();
 
+        // Scale up node sizes on mobile for better touch targets
+        const postVal = isMobile ? 12 : 8;
+        const tagVal = isMobile ? 7 : 4;
+
         posts.forEach(post => {
             // De blogpost zelf is een grote node
-            nodes.push({ id: post.slug, name: post.data.title, type: 'post', val: 6 });
+            nodes.push({ id: post.slug, name: post.data.title, type: 'post', val: postVal });
 
             if (post.data.tags) {
                 post.data.tags.forEach(tag => {
@@ -58,11 +64,11 @@ export default function BlogGraph({ posts }: Props) {
 
         // Maak een kleine node voor elke unieke tag
         tags.forEach(tag => {
-            nodes.push({ id: tag, name: `#${tag}`, type: 'tag', val: 3 });
+            nodes.push({ id: tag, name: `#${tag}`, type: 'tag', val: tagVal });
         });
 
         return { nodes, links };
-    }, [posts]);
+    }, [posts, isMobile]);
 
     const themeColors = {
         bg: 'transparent',
@@ -92,6 +98,7 @@ export default function BlogGraph({ posts }: Props) {
                             linkColor={() => themeColors.link}
                             linkWidth={1}
                             nodeRelSize={1}
+                            enableNodeDrag={!isMobile}
                             // Teken de knooppunten en de tekst (labels) op het canvas
                             nodeCanvasObject={(node: any, ctx, globalScale) => {
                                 const label = node.name;
@@ -118,6 +125,14 @@ export default function BlogGraph({ posts }: Props) {
                                 // Teken de tekst eronder
                                 ctx.fillStyle = themeColors.text;
                                 ctx.fillText(label, node.x, node.y + node.val + (fontSize * 1.2));
+                            }}
+                            // Paint a larger invisible hit area so nodes are easier to click/tap
+                            nodePointerAreaPaint={(node: any, color, ctx) => {
+                                const hitRadius = node.type === 'post' ? node.val * 3 : node.val * 2.5;
+                                ctx.beginPath();
+                                ctx.arc(node.x, node.y, hitRadius, 0, 2 * Math.PI, false);
+                                ctx.fillStyle = color;
+                                ctx.fill();
                             }}
                             // Navigeer naar de blogpost als je op een grote node klikt
                             onNodeClick={(node: any) => {

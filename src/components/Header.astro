@@ -10,7 +10,7 @@ import ModeToggle from "./ModeToggle";
     </div>
 
     <div
-      class="module-body flex flex-col md:flex-row items-center justify-between gap-4 py-4"
+      class="module-body flex flex-row items-center justify-between gap-4 py-4"
     >
       <a
         href="/"
@@ -21,43 +21,43 @@ import ModeToggle from "./ModeToggle";
       </a>
 
       <nav
-        class="flex flex-wrap justify-center items-center gap-4 md:gap-8 text-[10px] sm:text-xs font-bold uppercase tracking-widest text-slate-400"
+        class="hidden md:flex flex-wrap justify-center items-center gap-8 text-xs font-bold uppercase tracking-widest text-slate-400"
       >
         <a
           href="/projects"
-          class="transition-colors hover:text-[#38BDF8] hover:drop-shadow-[0_0_8px_rgba(56,189,248,0.4)]"
+          class="py-2 px-3 transition-colors hover:text-[#38BDF8] hover:drop-shadow-[0_0_8px_rgba(56,189,248,0.4)]"
         >
           <span class="text-white/20 mr-1">/</span>Projects
         </a>
         <a
           href="/blog"
-          class="transition-colors hover:text-[#38BDF8] hover:drop-shadow-[0_0_8px_rgba(56,189,248,0.4)]"
+          class="py-2 px-3 transition-colors hover:text-[#38BDF8] hover:drop-shadow-[0_0_8px_rgba(56,189,248,0.4)]"
         >
           <span class="text-white/20 mr-1">/</span>Knowledge
         </a>
         <a
           href="/signal"
-          class="transition-colors hover:text-[#38BDF8] hover:drop-shadow-[0_0_8px_rgba(56,189,248,0.4)]"
+          class="py-2 px-3 transition-colors hover:text-[#38BDF8] hover:drop-shadow-[0_0_8px_rgba(56,189,248,0.4)]"
         >
           <span class="text-white/20 mr-1">/</span>Signal
         </a>
       </nav>
 
-      <div class="flex items-center gap-4 shrink-0 mt-2 md:mt-0">
+      <div class="flex items-center gap-4 shrink-0">
         <div
-          class="flex items-center gap-3 text-[10px] font-bold uppercase tracking-widest text-slate-500 pr-4 border-r border-white/10"
+          class="hidden md:flex items-center gap-3 text-xs font-bold uppercase tracking-widest text-slate-500 pr-4 border-r border-white/10"
         >
           <a
             href="https://github.com/Arthur-VO"
             target="_blank"
             rel="noreferrer"
-            class="hover:text-white transition-colors">GH</a
+            class="py-2 px-2 hover:text-white transition-colors">GH</a
           >
           <a
             href="https://linkedin.com"
             target="_blank"
             rel="noreferrer"
-            class="hover:text-white transition-colors">IN</a
+            class="py-2 px-2 hover:text-white transition-colors">IN</a
           >
         </div>
         <ModeToggle client:load transition:persist />

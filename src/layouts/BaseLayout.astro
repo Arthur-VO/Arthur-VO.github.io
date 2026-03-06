@@ -1,6 +1,7 @@
 ---
 import { ClientRouter } from "astro:transitions";
 import Footer from "../components/Footer.astro";
+import BottomNav from "../components/BottomNav.astro";
 import "../styles/global.css";
 
 interface Props {
@@ -14,7 +15,7 @@ const { title } = Astro.props as Props;
 <html lang="en" data-mode="human">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="generator" content={Astro.generator} />
     <title>{title ?? "Arthur VO"}</title>
 
@@ -39,7 +40,9 @@ const { title } = Astro.props as Props;
     </script>
   </head>
 
-  <body class="bg-background text-text antialiased min-h-screen flex flex-col">
+  <body
+    class="bg-background text-text antialiased min-h-screen flex flex-col pb-16 md:pb-0"
+  >
     <div class="crt-glass" aria-hidden="true"></div>
 
     <div class="flex-grow">
@@ -47,5 +50,6 @@ const { title } = Astro.props as Props;
     </div>
 
     <Footer />
+    <BottomNav />
   </body>
 </html>
