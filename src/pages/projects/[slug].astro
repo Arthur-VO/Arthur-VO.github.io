@@ -5,7 +5,10 @@ import Header from "../../components/Header.astro";
 
 // 1. Vertel Astro welke projectpagina's gegenereerd moeten worden
 export async function getStaticPaths() {
-  const projectEntries = await getCollection("projects");
+  const projectEntries = await getCollection(
+    "projects",
+    ({ data }) => !data.draft,
+  );
   return projectEntries.map((entry) => ({
     params: { slug: entry.slug },
     props: { entry },

@@ -5,7 +5,7 @@ import Header from '../../components/Header.astro';
 
 // Dit is de cruciale functie! Let goed op het woordje 'export'
 export async function getStaticPaths() {
-  const allPosts = await getCollection('blog');
+  const allPosts = await getCollection('blog', ({ data }) => !data.draft);
   
   // Veiligheidscheck: we zorgen dat tags altijd een array is, zelfs als je het vergeet in je markdown
   const allTags = allPosts.map((post) => post.data.tags || []).flat();

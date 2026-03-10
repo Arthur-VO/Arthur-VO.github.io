@@ -3,6 +3,7 @@ import { defineCollection, z } from 'astro:content';
 
 const projects = defineCollection({
   schema: z.object({
+    draft: z.boolean().default(false),
     title: z.string(),
     status: z.enum(['active', 'completed', 'archived']),
     topic: z.string(),
@@ -16,6 +17,7 @@ const projects = defineCollection({
 
 const blog = defineCollection({
   schema: z.object({
+    draft: z.boolean().default(false),
     title: z.string(),
     pubDate: z.coerce.date(),
     category: z.string(),

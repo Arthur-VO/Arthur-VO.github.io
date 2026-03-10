@@ -5,7 +5,7 @@ import Header from "../../components/Header.astro";
 
 // 1. Tell Astro which pages to generate based on your markdown files
 export async function getStaticPaths() {
-  const blogEntries = await getCollection("blog");
+  const blogEntries = await getCollection("blog", ({ data }) => !data.draft);
   return blogEntries.map((entry) => ({
     params: { slug: entry.slug },
     props: { entry },

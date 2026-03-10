@@ -3,7 +3,7 @@ import { getCollection } from "astro:content";
 import GitProjectMap from "./GitProjectMap";
 
 // De component haalt nu ZELF zijn data op
-const projects = await getCollection("projects");
+const projects = await getCollection("projects", ({ data }) => !data.draft);
 ---
 
 <section class="mt-16">

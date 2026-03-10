@@ -3,7 +3,7 @@ import { getCollection } from "astro:content";
 import BlogGraph from "./BlogGraph";
 
 // De component haalt zelf de blogposts op
-const blogPosts = await getCollection("blog");
+const blogPosts = await getCollection("blog", ({ data }) => !data.draft);
 ---
 
 <section class="mt-16">

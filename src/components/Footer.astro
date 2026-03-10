@@ -74,8 +74,8 @@ const toSystemLog = async (entry: ContentEntry): Promise<SystemLog> => {
 
 const getRecentSystemLogs = async () => {
   const [projects, blog, signal] = await Promise.all([
-    getCollection("projects"),
-    getCollection("blog"),
+    getCollection("projects", ({ data }) => !data.draft),
+    getCollection("blog", ({ data }) => !data.draft),
     getCollection("signal"),
   ]);
   const allEntries: ContentEntry[] = [...projects, ...blog, ...signal];
