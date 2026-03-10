@@ -1,66 +1,100 @@
-# Astro Starter Kit: Minimal
+# Arthur-VO.github.io
 
-```sh
-pnpm create astro@latest -- --template minimal
-```
+Personal website built with Astro, Tailwind CSS, and React islands.
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+## Stack
 
-## 🚀 Project Structure
+- Astro 5
+- Tailwind CSS 4 (via Vite plugin)
+- React 19 for interactive components
+- TypeScript
 
-Inside of your Astro project, you'll see the following folders and files:
+## Local development
 
-```text
-/
-├── public/
-├── src/
-│   └── pages/
-│       └── index.astro
-└── package.json
-```
-
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
-
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
-
-Any static assets, like images, can be placed in the `public/` directory.
-
-## 🧞 Commands
-
-All commands are run from the root of the project, from a terminal:
-
-| Command                | Action                                           |
-| :--------------------- | :----------------------------------------------- |
-| `pnpm install`         | Installs dependencies                            |
-| `pnpm dev`             | Starts local dev server at `localhost:4321`      |
-| `pnpm build`           | Build your production site to `./dist/`          |
-| `pnpm preview`         | Preview your build locally, before deploying     |
-| `pnpm astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `pnpm astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
-
-## 🌐 Deploy to GitHub Pages
-
-This repository deploys with GitHub Actions using `.github/workflows/deploy.yml`.
-
-### One-time GitHub setup
-
-1. Open your repository on GitHub.
-2. Go to **Settings** → **Pages**.
-3. Under **Build and deployment**, set **Source** to **GitHub Actions**.
-
-### Deploy flow
-
-- Push to `main`.
-- The workflow builds the site with `pnpm build`.
-- Astro output from `dist/` is published to GitHub Pages.
-
-### Local production build check
+Install dependencies and start the dev server:
 
 ```sh
 pnpm install
+pnpm dev
+```
+
+App runs at `http://localhost:4321` by default.
+
+## Available scripts
+
+| Command | Description |
+| :-- | :-- |
+| `pnpm dev` | Start local development server |
+| `pnpm start` | Alias for `pnpm dev` |
+| `pnpm build` | Run `astro check` and build production output |
+| `pnpm preview` | Preview built site locally |
+| `pnpm astro -- --help` | Show Astro CLI help |
+| `pnpm new` | Scaffold a new content file in `src/content` |
+
+## Content model
+
+Content is managed with Astro content collections in `src/content`:
+
+- `blog/` — blog posts
+- `projects/` — project pages
+- `signal/` — signal/newsletter archive entries
+
+### Drafts
+
+Entries can use frontmatter `draft: true` to hide them from generated pages/routes.
+
+## New content workflow
+
+Use the interactive scaffold script:
+
+```sh
+pnpm new
+```
+
+You can create:
+
+1. Project entry (`src/content/projects`)
+2. Blog post (`src/content/blog`)
+3. Signal entry (`src/content/signal`)
+
+## Project structure
+
+```text
+.
+├── public/
+├── scripts/
+│   └── new.mjs
+├── src/
+│   ├── components/
+│   ├── content/
+│   ├── layouts/
+│   ├── pages/
+│   ├── stores/
+│   └── styles/
+├── astro.config.mjs
+├── tailwind.config.mjs
+└── package.json
+```
+
+## Deployment (GitHub Pages)
+
+Deployment is handled by GitHub Actions: `.github/workflows/deploy.yml`.
+
+### One-time repository setup
+
+1. Open GitHub repository settings.
+2. Go to **Pages**.
+3. Set **Source** to **GitHub Actions**.
+
+### Deploy flow
+
+- Push changes to `main`.
+- Workflow runs `pnpm build`.
+- Output from `dist/` is published to GitHub Pages.
+
+## Verify production build locally
+
+```sh
 pnpm build
+pnpm preview
 ```
